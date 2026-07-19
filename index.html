@@ -1,267 +1,388 @@
-    <!DOCTYPE html>
-    <html lang="vi">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Logistics Operation Dashboard</title>
-      <style>
-        /* ==================== 1. RESET & CẤU HÌNH CHUNG ==================== */
-        * {
-          box-sizing: border-box;
-        }
-        body {
-          font-family: Arial, sans-serif;
-          background-color: #f4f6f9;
-          margin: 0;
-          padding: 0;
-        }
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logistics Operation Dashboard</title>
+  <style>
+    /* ==================== 1. RESET & CẤU HÌNH CHUNG ==================== */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
 
-        /* Khung bao bọc chia 2 phần chính: Sidebar bên trái & Content bên phải */
-        .app-wrapper {
-          display: flex;
-          min-height: 100vh;
-        }
+    /* Khung bao bọc chia 2 phần chính: Sidebar bên trái & Content bên phải */
+    .app-wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
 
-        /* ==================== 2. THANH ĐIỀU HƯỚNG (SIDEBAR) BÊN TRÁI ==================== */
-        .sidebar {
-          width: 240px;
-          background-color: #1a202c; /* Màu tối chuyên nghiệp */
-          color: #ffffff;
-          padding: 25px 20px;
-          flex-shrink: 0; /* Không cho phép Sidebar bị bóp méo */
-          box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-          display: flex;
-          flex-direction: column;
-        }
+    /* ==================== 2. THANH ĐIỀU HƯỚNG (SIDEBAR) BÊN TRÁI ==================== */
+    .sidebar {
+      width: 240px;
+      background-color: #1a202c; /* Màu tối chuyên nghiệp */
+      color: #ffffff;
+      padding: 25px 20px;
+      flex-shrink: 0; /* Không cho phép Sidebar bị bóp méo */
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
 
-        .sidebar-brand {
-          font-size: 20px;
-          font-weight: bold;
-          margin-bottom: 35px;
-          color: #3182ce;
-          letter-spacing: 1px;
-        }
+    .sidebar-brand {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 35px;
+      color: #3182ce;
+      letter-spacing: 1px;
+    }
 
-        .sidebar-menu {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
+    .sidebar-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
-        .sidebar-menu li {
-          margin-bottom: 12px;
-        }
+    .sidebar-menu li {
+      margin-bottom: 12px;
+    }
 
-        .sidebar-menu a {
-          color: #a0aec0;
-          text-decoration: none;
-          display: block;
-          padding: 12px 15px;
-          border-radius: 6px;
-          font-size: 15px;
-          transition: all 0.2s ease;
-        }
+    .sidebar-menu a {
+      color: #a0aec0;
+      text-decoration: none;
+      display: block;
+      padding: 12px 15px;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: all 0.2s ease;
+    }
 
-        /* Hiệu ứng khi di chuột hoặc mục đang kích hoạt */
-        .sidebar-menu li.active a, 
-        .sidebar-menu a:hover {
-          color: #ffffff;
-          background-color: #2d3748;
-        }
+    /* Hiệu ứng khi di chuột hoặc mục đang kích hoạt */
+    .sidebar-menu li.active a, 
+    .sidebar-menu a:hover {
+      color: #ffffff;
+      background-color: #2d3748;
+    }
 
+    /* ==================== 3. KHU VỰC NỘI DUNG CHÍNH BÊN PHẢI ==================== */
+    .main-content {
+      flex-grow: 1; /* Tự động chiếm trọn vùng màn hình còn lại */
+      padding: 30px;
+      overflow-y: auto;
+    }
 
-        /* ==================== 3. KHU VỰC NỘI DUNG CHÍNH BÊN PHẢI ==================== */
-        .main-content {
-          flex-grow: 1; /* Tự động chiếm trọn vùng màn hình còn lại */
-          padding: 30px;
-          overflow-y: auto;
-        }
+    .main-header {
+      margin-bottom: 25px;
+    }
 
-        .main-header {
-          margin-bottom: 25px;
-        }
+    .main-header h2 {
+      margin: 0;
+      color: #2d3748;
+      font-size: 24px;
+    }
 
-        .main-header h2 {
-          margin: 0;
-          color: #2d3748;
-          font-size: 24px;
-        }
+    /* Lưới Grid Layout chứa các Card */
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); /* Chia màn hình làm 6 phần đều nhau */
+      gap: 20px;
+      grid-template-areas: 
+        "driver driver driver onhold onhold onhold"  /* Hàng trên: 2 Card (mỗi card chiếm 3 ô) */
+        "mp mp vns vns vnvl vnvl";                   /* Hàng dưới: 3 Card (mỗi card chiếm 2 ô) */
+    }
 
-        /* Lưới Grid Layout chứa các Card */
-        .dashboard-container {
-          display: grid;
-          grid-template-columns: repeat(6, 1fr); /* Chia màn hình làm 6 phần đều nhau */
-          gap: 20px;
-          grid-template-areas: 
-            "driver driver driver onhold onhold onhold"  /* Hàng trên: 2 Card (mỗi card chiếm 3 ô) */
-            "mp mp vns vns vnvl vnvl";                   /* Hàng dưới: 3 Card (mỗi card chiếm 2 ô) */
-        }
+    /* ==================== 4. THIẾT KẾ CARD CHI TIẾT ==================== */
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
 
-        /* ==================== 4. THIẾT KẾ CARD CHI TIẾT ==================== */
-        .card {
-          background: #ffffff;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-        }
+    /* Chỉ định khu vực hiển thị chính xác cho từng Card */
+    .card-driver { grid-area: driver; }
+    .card-onhold { grid-area: onhold; }
+    .card-mp     { grid-area: mp; }
+    .card-vns    { grid-area: vns; }
+    .card-vnvl   { grid-area: vnvl; }
 
-        /* Chỉ định khu vực hiển thị chính xác cho từng Card */
-        .card-driver { grid-area: driver; }
-        .card-onhold { grid-area: onhold; }
-        .card-mp     { grid-area: mp; }
-        .card-vns    { grid-area: vns; }
-        .card-vnvl   { grid-area: vnvl; }
+    /* Nội dung văn bản bên trong Card */
+    .card h3 {
+      margin-top: 0;
+      color: #2c3e50;
+      border-bottom: 2px solid #edf2f7;
+      padding-bottom: 10px;
+    }
+    
+    .card p {
+      display: flex;
+      justify-content: space-between; /* Đẩy chữ sang trái, số sang phải */
+      margin: 10px 0;
+      color: #4a5568;
+    }
+    
+    /* Vùng hiển thị con số dữ liệu lẻ */
+    .card p span {
+      font-weight: bold;
+      color: #3182ce;
+    }
+    
+    /* Vùng hiển thị con số tổng kết dòng dưới cùng */
+    .card h3.total {
+      margin-bottom: 0;
+      border-bottom: none;
+      border-top: 2px solid #edf2f7;
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      color: #2d3748; /* Màu tối thanh lịch mặc định */
+      margin-top: auto; /* Tự đẩy phần tính tổng xuống sát đáy Card */
+    }
 
-        /* Nội dung văn bản bên trong Card */
-        .card h3 {
-          margin-top: 0;
-          color: #2c3e50;
-          border-bottom: 2px solid #edf2f7;
-          padding-bottom: 10px;
-        }
-        
-        .card p {
-          display: flex;
-          justify-content: space-between; /* Đẩy chữ sang trái, số sang phải */
-          margin: 10px 0;
-          color: #4a5568;
-        }
-        
-        /* Vùng hiển thị con số dữ liệu lẻ */
-        .card p span {
-          font-weight: bold;
-          color: #3182ce;
-        }
-        
-        /* Vùng hiển thị con số tổng kết dòng dưới cùng */
-        .card h3.total {
-          margin-bottom: 0;
-          border-bottom: none;
-          border-top: 2px solid #edf2f7;
-          padding-top: 10px;
-          display: flex;
-          justify-content: space-between;
-          color: #e53e3e;
-          margin-top: auto; /* Tự đẩy phần tính tổng xuống sát đáy Card */
-        }
+    /* Riêng ô cảnh báo sự cố (Onhold) thì giữ nguyên màu đỏ rực cảnh báo */
+    .card-onhold h3.total {
+      color: #e53e3e;
+    }
 
+    /* ==================== 5. RESPONSIVE (HỖ TRỢ DI ĐỘNG) ==================== */
+    @media (max-width: 1024px) {
+      .app-wrapper {
+        flex-direction: column; /* Trên máy tính bảng nhỏ, xếp dọc Sidebar và Content */
+      }
+      .sidebar {
+        width: 100%;
+        padding: 15px;
+      }
+      .sidebar-brand {
+        margin-bottom: 15px;
+      }
+      .sidebar-menu {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto; /* Menu dạng vuốt ngang trên màn hình hẹp */
+      }
+      .sidebar-menu li {
+        margin-bottom: 0;
+      }
+    }
 
-        /* ==================== 5. RESPONSIVE (HỖ TRỢ DI ĐỘNG) ==================== */
-        @media (max-width: 1024px) {
-          .app-wrapper {
-            flex-direction: column; /* Trên máy tính bảng nhỏ, xếp dọc Sidebar và Content */
-          }
-          .sidebar {
-            width: 100%;
-            padding: 15px;
-          }
-          .sidebar-brand {
-            margin-bottom: 15px;
-          }
-          .sidebar-menu {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto; /* Menu dạng vuốt ngang trên màn hình hẹp */
-          }
-          .sidebar-menu li {
-            margin-bottom: 0;
-          }
-        }
+    @media (max-width: 768px) {
+      .dashboard-container {
+        grid-template-columns: 1fr; /* Trên điện thoại, chuyển sang 1 cột đơn dọc xuống */
+        grid-template-areas: 
+          "driver"
+          "onhold"
+          "mp"
+          "vns"
+          "vnvl";
+      }
+    }
+  </style>
+</head>
+<body>
 
-        @media (max-width: 768px) {
-          .dashboard-container {
-            grid-template-columns: 1fr; /* Trên điện thoại, chuyển sang 1 cột đơn dọc xuống */
-            grid-template-areas: 
-              "driver"
-              "onhold"
-              "mp"
-              "vns"
-              "vnvl";
-          }
-        }
-      </style>
-    </head>
-    <body>
+  <div class="app-wrapper">
 
-      <div class="app-wrapper">
+    <nav class="sidebar">
+      <div class="sidebar-brand">LOGISTICS PRO</div>
+      <ul class="sidebar-menu">
+        <li class="active"><a href="#">📊 Tổng quan</a></li>
+        <li><a href="#">📦 Đơn hàng</a></li>
+        <li><a href="#">🚚 Tài xế</a></li>
+        <li><a href="#">⚠️ Sự cố (Onhold)</a></li>
+        <li><a href="#">⚙️ Hệ thống</a></li>
+      </ul>
+    </nav>
 
-        <nav class="sidebar">
-          <div class="sidebar-brand">LOGISTICS PRO</div>
-          <ul class="sidebar-menu">
-            <li class="active"><a href="#">📊 Tổng quan</a></li>
-            <li><a href="#">📦 Đơn hàng</a></li>
-            <li><a href="#">🚚 Tài xế</a></li>
-            <li><a href="#">⚠️ Sự cố (Onhold)</a></li>
-            <li><a href="#">⚙️ Hệ thống</a></li>
-          </ul>
-        </nav>
+    <main class="main-content">
+      
+      <header class="main-header">
+        <h2>Bảng Giám Sát Vận Hành</h2>
+      </header>
 
-        <main class="main-content">
-          
-          <header class="main-header">
-            <h2>Bảng Giám Sát Vận Hành</h2>
-          </header>
+      <div class="dashboard-container">
 
-          <div class="dashboard-container">
+        <div class="card card-driver">
+          <h3>Driver</h3>
+          <p>Delivering: <span id="driver-delivering">0</span></p>
+          <p>Delivered: <span id="driver-delivered">0</span></p>
+          <p>Onhold: <span id="driver-onhold">0</span></p>
+          <h3 class="total">Total: <span id="driver-total">0</span></h3>
+        </div>
 
-            <div class="card card-driver">
-              <h3>Driver</h3>
-              <p>Delivering: <span id="driver-delivering">0</span></p>
-              <p>Delivered: <span id="driver-delivered">0</span></p>
-              <p>Onhold: <span id="driver-onhold">0</span></p>
-              <h3 class="total">Total: <span id="driver-total">0</span></h3>
-            </div>
+        <div class="card card-onhold">
+          <h3>Onhold Reasons</h3>
+          <p>Insufficient time: <span id="oh-time">0</span></p>
+          <p>Recipient unavailable: <span id="oh-unavail">0</span></p>
+          <p>Recipient reschedule: <span id="oh-reschedule">0</span></p>
+          <p>Recipient reject: <span id="oh-reject">0</span></p>
+          <p>Lý do khác: <span id="oh-other">0</span></p>
+          <h3 class="total">Total: <span id="oh-total">0</span></h3>
+        </div>
 
-            <div class="card card-onhold">
-              <h3>Onhold Reasons</h3>
-              <p>Insufficient time: <span id="oh-time">0</span></p>
-              <p>Recipient unavailable: <span id="oh-unavail">0</span></p>
-              <p>Recipient reschedule: <span id="oh-reschedule">0</span></p>
-              <p>Recipient reject: <span id="oh-reject">0</span></p>
-              <p>Lý do khác: <span id="oh-other">0</span></p>
-              <h3 class="total">Total: <span id="oh-total">0</span></h3>
-            </div>
+        <div class="card card-mp">
+          <h3>MP</h3>
+          <p>Created: <span id="mp-created">0</span></p>
+          <p>Pickup Onhold: <span id="mp-pickup-onhold">0</span></p>
+          <p>Pickup Done: <span id="mp-pickup-done">0</span></p>
+          <h3 class="total">Total: <span id="mp-total">0</span></h3>
+        </div>
 
+        <div class="card card-vns">
+          <h3>VNS (SOC)</h3>
+          <p>SOC Receive: <span id="vns-receive">0</span></p>
+          <p>SOC Packing: <span id="vns-packing">0</span></p>
+          <p>SOC Packed: <span id="vns-packed">0</span></p>
+          <p>SOC LH Packing: <span id="vns-lh-packing">0</span></p>
+          <p>SOC LH Packed: <span id="vns-lh-packed">0</span></p>
+          <p>SOC LH Transporting: <span id="vns-lh-transporting">0</span></p>
+          <p>SOC LH Transported: <span id="vns-lh-transported">0</span></p>
+          <h3 class="total">Total: <span id="vns-total">0</span></h3>
+        </div>
 
-            <div class="card card-mp">
-              <h3>MP</h3>
-              <p>Created: <span id="mp-created">0</span></p>
-              <p>Pickup Onhold: <span id="mp-pickup-onhold">0</span></p>
-              <p>Pickup Done: <span id="mp-pickup-done">0</span></p>
-              <h3 class="total">Total: <span id="mp-total">0</span></h3>
-            </div>
-
-            <div class="card card-vns">
-              <h3>VNS (SOC)</h3>
-              <p>SOC Receive: <span id="vns-receive">0</span></p>
-              <p>SOC Packing: <span id="vns-packing">0</span></p>
-              <p>SOC Packed: <span id="vns-packed">0</span></p>
-              <p>SOC LH Packing: <span id="vns-lh-packing">0</span></p>
-              <p>SOC LH Packed: <span id="vns-lh-packed">0</span></p>
-              <p>SOC LH Transporting: <span id="vns-lh-transporting">0</span></p>
-              <p>SOC LH Transported: <span id="vns-lh-transported">0</span></p>
-              <h3 class="total">Total: <span id="vns-total">0</span></h3>
-            </div>
-
-            <div class="card card-vnvl">
-              <h3>VNVL (SOC)</h3>
-              <p>SOC Receive: <span id="vnvl-receive">0</span></p>
-              <p>SOC Packing: <span id="vnvl-packing">0</span></p>
-              <p>SOC Packed: <span id="vnvl-packed">0</span></p>
-              <p>SOC LH Packing: <span id="vnvl-lh-packing">0</span></p>
-              <p>SOC LH Packed: <span id="vnvl-lh-packed">0</span></p>
-              <p>SOC LH Transporting: <span id="vnvl-lh-transporting">0</span></p>
-              <p>SOC LH Transported: <span id="vnvl-lh-transported">0</span></p>
-              <h3 class="total">Total: <span id="vnvl-total">0</span></h3>
-            </div>
-
-          </div>
-        </main>
+        <div class="card card-vnvl">
+          <h3>VNVL (SOC)</h3>
+          <p>SOC Receive: <span id="vnvl-receive">0</span></p>
+          <p>SOC Packing: <span id="vnvl-packing">0</span></p>
+          <p>SOC Packed: <span id="vnvl-packed">0</span></p>
+          <p>SOC LH Packing: <span id="vnvl-lh-packing">0</span></p>
+          <p>SOC LH Packed: <span id="vnvl-lh-packed">0</span></p>
+          <p>SOC LH Transporting: <span id="vnvl-lh-transporting">0</span></p>
+          <p>SOC LH Transported: <span id="vnvl-lh-transported">0</span></p>
+          <h3 class="total">Total: <span id="vnvl-total">0</span></h3>
+        </div>
 
       </div>
+    </main>
+  </div>
 
+  <script>
+    // ⚠️ HÃY THAY ĐƯỜNG LINK KHỞI TẠO CSV CỦA BẠN VÀO GIỮA HAI DẤU NGOẶC ĐƠN DƯỚI ĐÂY:
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTmHtUtRB8MIVAkX6Aiuv7d6xu3qQwza-OdCLD1mzuWcGe-b1l8T-jujSxOBtdv4LTWI76YyhGspp04/pub?gid=1234635319&single=true&output=csv';
+
+    async function fetchSheetData() {
+      try {
+        const response = await fetch(SHEET_CSV_URL);
+        if (!response.ok) throw new Error('Không thể kết nối đến dữ liệu Google Sheets');
+        
+        const csvText = await response.text();
+        const dataMap = parseCSV(csvText);
+        
+        renderDashboard(dataMap);
+      } catch (error) {
+        console.error('Lỗi hệ thống khi tải dữ liệu:', error);
+      }
+    }
+
+    // Hàm chuyển đổi dữ liệu text CSV thô từ Google Sheets sang định dạng Map tra cứu
+    function parseCSV(text) {
+      const lines = text.split(/\r?\n/);
+      const map = {};
       
-    </body>
-    </html>
+      // Bỏ qua dòng tiêu đề thứ nhất (i = 0), bắt đầu đọc dữ liệu từ dòng số 2
+      for (let i = 1; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line) continue;
+        
+        // Tách dữ liệu bằng dấu phẩy, tự động lọc bỏ dấu ngoặc kép bọc ngoài chuỗi
+        const columns = line.split(',').map(col => col.replace(/^"|"$/g, '').trim());
+        
+        if (columns.length >= 2) {
+          const id = columns[0];
+          const value = parseInt(columns[1]) || 0; // Đưa về số nguyên bảo mật
+          map[id] = value;
+        }
+      }
+      return map;
+    }
+
+    // Hàm phân phối dữ liệu từ Sheet lên các ID thẻ tương ứng và tự động tính tổng dòng Total
+    function renderDashboard(data) {
+      // 1. CẬP NHẬT NHÓM DRIVER
+      const dDelivering = data['driver-delivering'] || 0;
+      const dDelivered  = data['driver-delivered'] || 0;
+      const dOnhold     = data['driver-onhold'] || 0;
+      document.getElementById('driver-delivering').innerText = dDelivering;
+      document.getElementById('driver-delivered').innerText = dDelivered;
+      document.getElementById('driver-onhold').innerText = dOnhold;
+      document.getElementById('driver-total').innerText = dDelivering + dDelivered + dOnhold;
+
+      // 2. CẬP NHẬT NHÓM ONHOLD REASONS
+      const ohTime       = data['oh-time'] || 0;
+      const ohUnavail    = data['oh-unavail'] || 0;
+      const ohReschedule = data['oh-reschedule'] || 0;
+      const ohReject     = data['oh-reject'] || 0;
+      const ohOther      = data['oh-other'] || 0;
+      document.getElementById('oh-time').innerText = ohTime;
+      document.getElementById('oh-unavail').innerText = ohUnavail;
+      document.getElementById('oh-reschedule').innerText = ohReschedule;
+      document.getElementById('oh-reject').innerText = ohReject;
+      document.getElementById('oh-other').innerText = ohOther;
+      document.getElementById('oh-total').innerText = ohTime + ohUnavail + ohReschedule + ohReject + ohOther;
+
+      // 3. CẬP NHẬT NHÓM MP
+      const mpCreated = data['mp-created'] || 0;
+      const mpOnhold  = data['mp-pickup-onhold'] || 0;
+      const mpDone    = data['mp-pickup-done'] || 0;
+      document.getElementById('mp-created').innerText = mpCreated;
+      document.getElementById('mp-pickup-onhold').innerText = mpOnhold;
+      document.getElementById('mp-pickup-done').innerText = mpDone;
+      document.getElementById('mp-total').innerText = mpCreated + mpOnhold + mpDone;
+
+      // 4. CẬP NHẬT NHÓM VNS (SOC)
+      const vnsRec     = data['vns-receive'] || 0;
+      const vnsPack    = data['vns-packing'] || 0;
+      const vnsPacked  = data['vns-packed'] || 0;
+      const vnsLhPack  = data['vns-lh-packing'] || 0;
+      const vnsLhPked  = data['vns-lh-packed'] || 0;
+      const vnsLhTrans = data['vns-lh-transporting'] || 0;
+      const vnsLhTed   = data['vns-lh-transported'] || 0;
+      document.getElementById('vns-receive').innerText = vnsRec;
+      document.getElementById('vns-packing').innerText = vnsPack;
+      document.getElementById('vns-packed').innerText = vnsPacked;
+      document.getElementById('vns-lh-packing').innerText = vnsLhPack;
+      document.getElementById('vns-lh-packed').innerText = vnsLhPked;
+      document.getElementById('vns-lh-transporting').innerText = vnsLhTrans;
+      document.getElementById('vns-lh-transported').innerText = vnsLhTed;
+      document.getElementById('vns-total').innerText = vnsRec + vnsPack + vnsPacked + vnsLhPack + vnsLhPked + vnsLhTrans + vnsLhTed;
+
+      // 5. CẬP NHẬT NHÓM VNVL (SOC)
+      const vnvlRec     = data['vnvl-receive'] || 0;
+      const vnvlPack    = data['vnvl-packing'] || 0;
+      const vnvlPacked  = data['vnvl-packed'] || 0;
+      const vnvlLhPack  = data['vnvl-lh-packing'] || 0;
+      const vnvlLhPked  = data['vnvl-lh-packed'] || 0;
+      const vnvlLhTrans = data['vnvl-lh-transporting'] || 0;
+      const vnvlLhTed   = data['vnvl-lh-transported'] || 0;
+      document.getElementById('vnvl-receive').innerText = vnvlRec;
+      document.getElementById('vnvl-packing').innerText = vnvlPack;
+      document.getElementById('vnvl-packed').innerText = vnvlPacked;
+      document.getElementById('vnvl-lh-packing').innerText = vnvlLhPack;
+      document.getElementById('vnvl-lh-packed').innerText = vnvlLhPked;
+      document.getElementById('vnvl-lh-transporting').innerText = vnvlLhTrans;
+      document.getElementById('vnvl-lh-transported').innerText = vnvlLhTed;
+      document.getElementById('vnvl-total').innerText = vnvlRec + vnvlPack + vnvlPacked + vnvlLhPack + vnvlLhPked + vnvlLhTrans + vnvlLhTed;
+    }
+
+    // Thiết lập kích hoạt chạy khi khởi động trang web
+    window.onload = () => {
+      fetchSheetData();
+      // Thực hiện Polling liên tục: Tự làm mới và đồng bộ số liệu từ Google Sheet sau mỗi 20 giây
+      setInterval(fetchSheetData, 20000);
+    };
+  </script>
+</body>
+</html>
